@@ -1,0 +1,38 @@
+table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    border: 3px solid purple;
+}
+
+
+th, td {
+    padding: 20px;
+}
+
+tr {
+    text-align: center;
+}
+
+button {
+    font-weight: 700;
+    color: white;
+    text-decoration: none;
+    padding: .8em 1em calc(.8em + 3px);
+    border-radius: 3px;
+    transition: 0.2s;
+}
+
+#DeleteButton {
+    background: indianred;
+}
+
+#EditButton {
+    background: deepskyblue;
+}
+
+#AddButton {
+    background: greenyellow;
+    color: black;
+}
+
