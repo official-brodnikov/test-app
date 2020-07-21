@@ -1,10 +1,16 @@
 table {
     table-layout: fixed;
     width: 100%;
-    border-collapse: collapse;
-    border: 3px solid purple;
+    border-collapse: collapse; /* Убираем двойные линии между ячейками */
 }
 
+
+input {
+    outline: none;
+    border: none;
+    text-align: center;
+    font-size: 18px;
+}
 
 th, td {
     padding: 20px;
@@ -12,6 +18,7 @@ th, td {
 
 tr {
     text-align: center;
+    border: 1px solid #333;
 }
 
 button {
@@ -23,15 +30,15 @@ button {
     transition: 0.2s;
 }
 
-#DeleteButton {
+#deleteButton {
     background: indianred;
 }
 
-#EditButton {
+#editButton {
     background: deepskyblue;
 }
 
-#AddButton {
+#addButton,#saveButton {
     background: greenyellow;
     color: black;
 }
