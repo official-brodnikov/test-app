@@ -1,19 +1,40 @@
 table {
     table-layout: fixed;
     width: 100%;
-    border-collapse: collapse; /* Убираем двойные линии между ячейками */
+    border-collapse: collapse;
+}
+
+h1{
+    text-align: center;
 }
 
 
-input {
+input, textarea {
     outline: none;
     border: none;
     text-align: center;
     font-size: 18px;
+    overflow-x: hidden;
+    resize: none;
 }
 
 th, td {
     padding: 20px;
+    font-size: 24px;
+}
+
+.titleTr{
+    border: 2px solid #333;
+}
+
+.newTodoUserId{
+    border: 1px solid black;
+    font-size: 18px;
+}
+
+.editInput {
+    border: 3px solid blue;
+    font-size: 24px;
 }
 
 tr {
@@ -30,16 +51,15 @@ button {
     transition: 0.2s;
 }
 
-#deleteButton {
+.deleteButton {
     background: indianred;
 }
 
-#editButton {
+.editButton {
     background: deepskyblue;
 }
 
-#addButton,#saveButton {
+.addButton, .saveButton {
     background: greenyellow;
     color: black;
 }
-

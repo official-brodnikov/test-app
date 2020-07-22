@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import './Table.css';
 
 export default class MainTable extends Component {
+
     constructor() {
         super();
         this.state ={
@@ -23,19 +24,27 @@ export default class MainTable extends Component {
             //Поле completed редактируемого обьекта
             completedEditable: null,
 
-            value: '',
+            //Индекс нового элемента
+            indexAdded: null,
+
+            //К какому пользователю добавить запись
+            userIdAdded: '1',
+
+            //Новый todo
+            newTodo: null,
         }
 
         this.handleInputChange = this.handleInputChange.bind(this);
     }
 
 
-    componentDidMount() {
+    async componentDidMount() {
+
         //Выбранная модель данных, 4 поля для каждой записи, уникальное только id
         const url = `https://jsonplaceholder.typicode.com/todos`
 
         //Запрос к ресурсу, изменения состояния компонента ()
-        fetch(url, {
+        await fetch(url, {
             method: "GET"
         }).then(response => response.json()).then(todos => {
             this.setState({todos: todos})
@@ -48,11 +57,10 @@ export default class MainTable extends Component {
         })*/
     }
 
-    handleInputChange(event) {
-        const target = event.target;
+    handleInputChange(e) {
+        const target = e.target;
         const value = target.name === 'completedEditable' ? target.checked : target.value;
         const name = target.name;
-
         this.setState({
             [name]: value
         });
@@ -60,13 +68,19 @@ export default class MainTable extends Component {
 
 
     //Обработка кнопки удаления записи
-    delete(todo){
+    async delete(todo){
         //Формируем url для удаление записи из ресура
-        let url = `https://jsonplaceholder.typicode.com/todos/${todo.userId}/${todo.id}`
+        const url = `https://jsonplaceholder.typicode.com/todos/${todo.userId}`
 
-        //Выполняем запрос DELETE к ресурсу
-        fetch(url, {
+        //Выполняем запрос DELETE к ресурсу, имитирует удаление
+        await fetch(url, {
             method: 'DELETE',
+            body: JSON.stringify({
+                userId: todo.userId,
+                id: todo.id,
+                title: todo.title,
+                completed: todo.completed
+            }),
         }).catch(console.log)
 
         //Копируем массив данных в текущем состоянии компонента
@@ -114,23 +128,28 @@ export default class MainTable extends Component {
     }
 
     //Обработка кнопки сохранения изменений в записи
-    save(e, todo){
+    async save(e, todo){
         //Формируем url для изменения записи в ресуре
-        let url = `https://jsonplaceholder.typicode.com/todos/${todo.userId}/${todo.id}`
+        const url = `https://jsonplaceholder.typicode.com/todos/${todo.userId}`
 
         //Измененный объект todo
         const newTodo = {
+            userId: this.state.userIdEditable,
             id: this.state.idEditable,
-            userID: this.state.userIdEditable,
             title: this.state.titleEditable,
             completed: this.state.completedEditable
         }
 
+        console.log("Изменили",newTodo)
+
         //Выолняем запрос к ресурсу на изменение обьекта todo
-        fetch(url, {
+        await fetch(url, {
             method: 'PUT',
             body: JSON.stringify({
-                newTodo
+                userId: this.state.userIdEditable,
+                id: this.state.idEditable,
+                title: this.state.titleEditable,
+                completed: this.state.completedEditable
             }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
@@ -139,17 +158,14 @@ export default class MainTable extends Component {
             .then(response => response.json())
             .then(json => console.log(json))
 
+
         //Копируем массив данных в текущем состоянии компонента
         let newTodos = this.state.todos
-
         //Так как уникальный id, формируем список всех id
         let ids = this.state.todos.map(item => item.id)
 
         // Заменяем элемент в локальном массиве
-        let newList = newTodos.splice (ids.indexOf(todo.id), 1, newTodo)
-
-        console.log(this.state.title)
-        console.log('обьект',newTodo)
+        newTodos.splice (ids.indexOf(todo.id), 1, newTodo)
 
         //Изменяем состояние компонента
         this.setState({
@@ -162,37 +178,54 @@ export default class MainTable extends Component {
         })
     }
 
-    //Изменение поля id при редактировании
-    idChange(e){
-        this.setState({idEditable: e.target.value})
-        //console.log(e.target.value)
-    }
-
-    //Изменение поля userId при редактировании
-    userIdChange(e){
-        this.setState({userIdEditable: e.target.value})
-        //console.log(e.target.value)
-    }
-
-    //Изменение поля title при редактировании
-    titleChange(e){
-        this.setState({titleEditable: e.target.value})
-        //console.log(e.target.value)
-    }
-
-    //Изменение поля completed при редактировании
-    completedChange(e){
-        this.setState({completedEditable: e.target.checked})
-        //console.log(e.target.checked)
-    }
-
     //Возвращает значение флага checkBox
     //Не обращаемся к локальным данным таблицы из состояния, если находимся в процессе изменения,
     // т.к. там данные до сохранения не обновляются
-    isChecked(item){
-        return this.state.indexEditable === item.id
+    isChecked(todo){
+        return this.state.indexEditable === todo.id
             ? this.state.completedEditable
-            : item.completed.toString() === 'true'
+            : todo.completed.toString() === 'true'
+    }
+
+    //Обработка кнопки добавить новую запись
+    async add(){
+        //Выбранная модель данных, 4 поля для каждой записи, уникальное только id
+        const url = `https://jsonplaceholder.typicode.com/todos`
+
+        //Добавляем на ресурс новую запись
+        await fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({
+                userId: this.state.userIdAdded,
+                title: "",
+                completed: false
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+            .then(response => response.json())
+            .then(todo => {this.setState({newTodo: todo})
+            })
+
+        //Изменяем данные todos локально
+        //jsonplaceholder лишь имитирует добавление записи на ресурс
+        let newTodos = this.state.todos
+        newTodos.push(this.state.newTodo)
+
+        //Добавленная запись в таблице
+        const lastTodo = newTodos[newTodos.length - 1]
+
+        //Изменяем состояния, при этом сразу же делаем редактируемой новую запись для удобства
+        this.setState({
+            indexEditable: newTodos.length,
+            idEditable: lastTodo.id,
+            userIdEditable: lastTodo.userId,
+            titleEditable: lastTodo.title,
+            completedEditable: lastTodo.completed,
+            userIdAdded: '1',
+            newTodo: null,
+        })
     }
 
     render()
@@ -200,12 +233,30 @@ export default class MainTable extends Component {
         return (
             <table className="table">
                 <thead>
-                <tr>
+                <tr className="titleTr">
                     <th>ID</th>
                     <th>User ID</th>
                     <th>Title</th>
                     <th>Completed</th>
-                    <th><button id="addButton">Add</button></th>
+                    <th>
+                        <label>
+                            Enter User ID to add
+                        </label>
+                        <input
+                            name = "userIdAdded"
+                            className="newTodoUserId"
+                            type="number"
+                            min={1}
+                            value={this.state.userIdAdded}
+                            onChange={this.handleInputChange}
+                        />
+                        <button
+                            className="addButton"
+                            onClick={(e) => this.add()}
+                        >
+                            Add
+                        </button>
+                    </th>
                 </tr>
                 </thead>
                 <tbody>
@@ -214,7 +265,7 @@ export default class MainTable extends Component {
                         <td>
                             <input
                                 name = "idEditable"
-                                readOnly={this.state.indexEditable !== item.id}
+                                readOnly={true}
                                 type="number"
                                 value={this.state.indexEditable === item.id ? this.state.idEditable : item.id}
                                 onChange={this.handleInputChange}
@@ -224,7 +275,7 @@ export default class MainTable extends Component {
                         <td>
                             <input
                                 name = "userIdEditable"
-                                readOnly={this.state.indexEditable !== item.id}
+                                readOnly={true}
                                 type="number"
                                 value={this.state.indexEditable === item.id ? this.state.userIdEditable : item.userId}
                                 onChange={this.handleInputChange}
@@ -232,18 +283,20 @@ export default class MainTable extends Component {
                         </td>
 
                         <td>
-                            <input
+                            <textarea
                                 name = "titleEditable"
                                 readOnly={this.state.indexEditable !== item.id}
-                                type="text"
+                                className={this.state.indexEditable === item.id ? "editInput" : null}
                                 value={this.state.indexEditable === item.id ? this.state.titleEditable : item.title}
                                 onChange={this.handleInputChange}
+                                autoFocus={this.state.indexEditable === item.id}
                             />
                         </td>
 
                         <td>
                             <input
                                 name = "completedEditable"
+                                className={this.state.indexEditable === item.id ? "editInput" : null}
                                 type = "checkbox"
                                 readOnly={this.state.indexEditable !== item.id}
                                 checked={this.state.indexEditable === item.id
@@ -252,10 +305,9 @@ export default class MainTable extends Component {
                                 onChange={this.handleInputChange}
                             />
                         </td>
-
                         <td>
                             <button
-                                id="deleteButton"
+                                className="deleteButton"
                                 onClick={(e) => this.delete(item)}
                             >
                                 Delete
@@ -264,14 +316,14 @@ export default class MainTable extends Component {
                             {this.state.indexEditable === item.id
                                 ?
                                 <button
-                                    id="saveButton"
+                                    className="saveButton"
                                     onClick={(e) => this.save(e, item)}
                                 >
                                     Save
                                 </button>
                                 :
                                 <button
-                                    id="editButton"
+                                    className="editButton"
                                     onClick={(e) => this.edit(e, item)}
                                 >
                                     Edit
