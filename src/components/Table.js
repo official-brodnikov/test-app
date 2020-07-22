@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import './Table.css';
+import Button from "./Button";
 
 export default class MainTable extends Component {
 
@@ -34,7 +35,7 @@ export default class MainTable extends Component {
             newTodo: null,
         }
 
-        this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this)
     }
 
 
@@ -49,12 +50,6 @@ export default class MainTable extends Component {
         }).then(response => response.json()).then(todos => {
             this.setState({todos: todos})
         })
-
-        /*return fetch(url, {
-            method: "GET"
-        }).then(response => response.json()).then(todos => {
-            console.log(todos)
-        })*/
     }
 
     handleInputChange(e) {
@@ -65,7 +60,6 @@ export default class MainTable extends Component {
             [name]: value
         });
     }
-
 
     //Обработка кнопки удаления записи
     async delete(todo){
@@ -82,6 +76,9 @@ export default class MainTable extends Component {
                 completed: todo.completed
             }),
         }).catch(console.log)
+
+
+        //Происходит имитация изменения данных в модели, действия не нужны при реальной работе
 
         //Копируем массив данных в текущем состоянии компонента
         let newTodos = this.state.todos
@@ -140,16 +137,11 @@ export default class MainTable extends Component {
             completed: this.state.completedEditable
         }
 
-        console.log("Изменили",newTodo)
-
-        //Выолняем запрос к ресурсу на изменение обьекта todo
+        //Выполняем запрос к ресурсу на изменение обьекта todo
         await fetch(url, {
             method: 'PUT',
             body: JSON.stringify({
-                userId: this.state.userIdEditable,
-                id: this.state.idEditable,
-                title: this.state.titleEditable,
-                completed: this.state.completedEditable
+                newTodo
             }),
             headers: {
                 "Content-type": "application/json; charset=UTF-8"
@@ -158,6 +150,8 @@ export default class MainTable extends Component {
             .then(response => response.json())
             .then(json => console.log(json))
 
+
+        //Происходит имитация изменения данных в модели, действия не нужны при реальной работе
 
         //Копируем массив данных в текущем состоянии компонента
         let newTodos = this.state.todos
@@ -219,8 +213,6 @@ export default class MainTable extends Component {
         //Изменяем состояния, при этом сразу же делаем редактируемой новую запись для удобства
         this.setState({
             indexEditable: newTodos.length,
-            idEditable: lastTodo.id,
-            userIdEditable: lastTodo.userId,
             titleEditable: lastTodo.title,
             completedEditable: lastTodo.completed,
             userIdAdded: '1',
@@ -230,10 +222,15 @@ export default class MainTable extends Component {
 
     render()
     {
+        const indexEditable = this.state.indexEditable
+        const title = this.state.titleEditable
+        const completed = this.state.completedEditable
+        const userIdAdded = this.state.userIdAdded
+
         return (
             <table className="table">
                 <thead>
-                <tr className="titleTr">
+                <tr className="tableHeader">
                     <th>ID</th>
                     <th>User ID</th>
                     <th>Title</th>
@@ -247,15 +244,14 @@ export default class MainTable extends Component {
                             className="newTodoUserId"
                             type="number"
                             min={1}
-                            value={this.state.userIdAdded}
+                            value={userIdAdded}
                             onChange={this.handleInputChange}
                         />
-                        <button
+                        <Button
                             className="addButton"
-                            onClick={(e) => this.add()}
-                        >
-                            Add
-                        </button>
+                            onButtonClick={(e) => this.add()}
+                            text = "Add"
+                        />
                     </th>
                 </tr>
                 </thead>
@@ -267,8 +263,7 @@ export default class MainTable extends Component {
                                 name = "idEditable"
                                 readOnly={true}
                                 type="number"
-                                value={this.state.indexEditable === item.id ? this.state.idEditable : item.id}
-                                onChange={this.handleInputChange}
+                                value={item.id}
                             />
                         </td>
 
@@ -277,57 +272,54 @@ export default class MainTable extends Component {
                                 name = "userIdEditable"
                                 readOnly={true}
                                 type="number"
-                                value={this.state.indexEditable === item.id ? this.state.userIdEditable : item.userId}
-                                onChange={this.handleInputChange}
+                                value={item.userId}
                             />
                         </td>
 
                         <td>
                             <textarea
                                 name = "titleEditable"
-                                readOnly={this.state.indexEditable !== item.id}
-                                className={this.state.indexEditable === item.id ? "editInput" : null}
-                                value={this.state.indexEditable === item.id ? this.state.titleEditable : item.title}
+                                readOnly={indexEditable !== item.id}
+                                className={indexEditable === item.id ? "editInput" : null}
+                                value={indexEditable === item.id ? title : item.title}
                                 onChange={this.handleInputChange}
-                                autoFocus={this.state.indexEditable === item.id}
+                                autoFocus={indexEditable === item.id}
                             />
                         </td>
 
                         <td>
                             <input
                                 name = "completedEditable"
-                                className={this.state.indexEditable === item.id ? "editInput" : null}
+                                className={indexEditable === item.id ? "editInput" : null}
                                 type = "checkbox"
-                                readOnly={this.state.indexEditable !== item.id}
-                                checked={this.state.indexEditable === item.id
-                                    ? this.state.completedEditable
+                                readOnly={indexEditable !== item.id}
+                                checked={indexEditable === item.id
+                                    ? completed
                                     : item.completed}
                                 onChange={this.handleInputChange}
                             />
                         </td>
-                        <td>
-                            <button
-                                className="deleteButton"
-                                onClick={(e) => this.delete(item)}
-                            >
-                                Delete
-                            </button>
 
-                            {this.state.indexEditable === item.id
+                        <td>
+                            <Button
+                                className="deleteButton"
+                                onButtonClick={(e) => this.delete(item)}
+                                text = "Delete"
+                            />
+
+                            {indexEditable === item.id
                                 ?
-                                <button
+                                <Button
                                     className="saveButton"
-                                    onClick={(e) => this.save(e, item)}
-                                >
-                                    Save
-                                </button>
+                                    onButtonClick={(e) => this.save(e, item)}
+                                    text = "Save"
+                                />
                                 :
-                                <button
+                                <Button
                                     className="editButton"
-                                    onClick={(e) => this.edit(e, item)}
-                                >
-                                    Edit
-                                </button>}
+                                    onButtonClick={(e) => this.edit(e, item)}
+                                    text = "Edit"
+                                />}
                         </td>
                     </tr>
                 ))}

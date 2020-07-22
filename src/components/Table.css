@@ -23,7 +23,7 @@ th, td {
     font-size: 24px;
 }
 
-.titleTr{
+.tableHeader{
     border: 2px solid #333;
 }
 
@@ -40,26 +40,4 @@ th, td {
 tr {
     text-align: center;
     border: 1px solid #333;
-}
-
-button {
-    font-weight: 700;
-    color: white;
-    text-decoration: none;
-    padding: .8em 1em calc(.8em + 3px);
-    border-radius: 3px;
-    transition: 0.2s;
-}
-
-.deleteButton {
-    background: indianred;
-}
-
-.editButton {
-    background: deepskyblue;
-}
-
-.addButton, .saveButton {
-    background: greenyellow;
-    color: black;
 }
