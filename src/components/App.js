@@ -1,20 +1,18 @@
-import React, { Component } from 'react';
+import React from 'react';
 import MainTable from "./Table";
+import { Provider } from 'mobx-react';
+import mainStore from "./mainStore";
 
-class App extends Component {
+const stores = {mainStore}
 
-    render() {
-        return (
-            <div className="container">
-                {
-                    <h1>Todos</h1>
-                },
-                {
-                    <MainTable/>
-                }
-            </div>
-        );
-    }
+function App() {
+    return (
+        <div className="App">
+            <Provider {...stores}>
+                <MainTable />
+            </Provider>
+        </div>
+    );
 }
 
 export default App;

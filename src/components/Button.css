@@ -5,6 +5,7 @@ button {
     padding: .8em 1em calc(.8em + 3px);
     border-radius: 3px;
     transition: 0.2s;
+    margin: 3%;
 }
 
 .deleteButton {

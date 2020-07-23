@@ -30,6 +30,7 @@ th, td {
 .newTodoUserId{
     border: 1px solid black;
     font-size: 18px;
+    width: 50px;
 }
 
 .editInput {
