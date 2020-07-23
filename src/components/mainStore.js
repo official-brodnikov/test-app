@@ -169,8 +169,14 @@ class mainStore
 
     //Listener кнопки сохраенния
     @action saveTodo(e) {
-        let newTodo = this.getTodo(e)
-        console.log(newTodo.completed)
+        let newTodo = null
+        this.isAdded ? newTodo = {
+                userId: this.userIdAdded,
+                id: '',
+                title: '',
+                completed: false
+            } :
+            newTodo = this.getTodo(e)
         newTodo.completed = this.completedEditable
         newTodo.title = this.titleEditable
 
