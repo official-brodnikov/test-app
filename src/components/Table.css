@@ -2,6 +2,7 @@ table {
     table-layout: fixed;
     width: 100%;
     border-collapse: collapse;
+    margin: auto;
 }
 
 h1{
@@ -13,14 +14,15 @@ input, textarea {
     outline: none;
     border: none;
     text-align: center;
-    font-size: 18px;
+    font-size: 2vw;
     overflow-x: hidden;
     resize: none;
 }
 
 th, td {
-    padding: 20px;
-    font-size: 24px;
+    font-size: 3vw;
+    text-align: center;
+    width: 50%;
 }
 
 .tableHeader{
@@ -29,13 +31,13 @@ th, td {
 
 .newTodoUserId{
     border: 1px solid black;
-    font-size: 18px;
-    width: 50px;
+    font-size: 2vw;
+    width: 100%;
 }
 
 .editInput {
     border: 3px solid blue;
-    font-size: 24px;
+    font-size: 2.5vw;
 }
 
 tr {

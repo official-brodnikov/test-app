@@ -1,4 +1,5 @@
 import {observable, action, computed, autorun} from "mobx";
+import Request from './Request'
 
 class mainStore
 {
@@ -7,6 +8,7 @@ class mainStore
             console.log(this.flagEditing)
             this.updateTodos()
         })
+        this.Request = new Request()
     }
     //Локальная модель
     @observable todos = [];
@@ -57,36 +59,13 @@ class mainStore
         return todo
     }
 
-    @action async deleteRequest(todo){
-        try {
 
-
-            //Формируем url для удаление записи из ресурса
-            const url = `https://jsonplaceholder.typicode.com/todos/${todo.userId}`
-
-            //Выполняем запрос DELETE к ресурсу, имитирует удаление
-            await fetch(url, {
-                method: 'DELETE',
-                body: JSON.stringify({
-                    userId: todo.userId,
-                    id: todo.id,
-                    title: todo.title,
-                    completed: todo.completed
-                }),
-            }).catch(console.log("Успешно удалено"))
-
-            //Произошло изменение в модели
-            this.flagEditing = !this.flagEditing
-        }
-        catch (e) {
-            console.log(e)
-        }
-    }
 
     //Listener для кнопки удаления
     @action async deleteTodo(e) {
         const todo = this.getTodo(e)
-        this.isAdded ? this.removeLast() : this.deleteRequest(todo)
+        this.isAdded ? this.removeLast() : await this.Request.deleteTodo(todo)
+            ? this.flagEditing = !this.flagEditing : console.log()
 
     }
 
@@ -112,63 +91,8 @@ class mainStore
         this.isAdded = false
     }
 
-    async putRequest(newTodo){
-        try {
-
-
-            //Формируем url для изменения записи в ресуре
-            const url = `https://jsonplaceholder.typicode.com/todos/${newTodo.userId}`
-
-            //Выполняем запрос к ресурсу на изменение обьекта todo
-            await fetch(url, {
-                method: 'PUT',
-                body: JSON.stringify({
-                    newTodo
-                }),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            })
-                .then(response => response.json())
-                .then(json => console.log("Успешно изменено ", json))
-            return true
-        }
-        catch (e) {
-            console.log(e)
-            return false
-        }
-    }
-
-    async postRequest(newTodo){
-        //Формируем url для изменения записи в ресуре
-        const url = `https://jsonplaceholder.typicode.com/todos`
-
-        try {
-
-            //Выполняем запрос к ресурсу на добавление новой записи
-            await fetch(url, {
-                method: 'POST',
-                body: JSON.stringify({
-                    userId: this.userIdAdded,
-                    title: newTodo.title,
-                    completed: newTodo.completed
-                }),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            })
-                .then(response => response.json())
-                .then(todo => console.log("Успешно добавлено ", todo))
-            return true
-        }
-        catch (e) {
-            console.log(e)
-            return false
-        }
-    }
-
     //Listener кнопки сохраенния
-    @action saveTodo(e) {
+    @action async saveTodo(e) {
         let newTodo = null
         this.isAdded ? newTodo = {
                 userId: this.userIdAdded,
@@ -183,8 +107,8 @@ class mainStore
         //Успешно ли был выполнен запрос
         let success = false
         //Изменяем обьект в модели или добавляем, если создавали новый
-        this.isAdded ? success = this.postRequest(newTodo) :
-            success = this.putRequest(newTodo)
+        this.isAdded ? success = await this.Request.postTodo(newTodo)
+            : success = await this.Request.putTodo(newTodo)
 
         success ? this.flagEditing = !this.flagEditing : console.log(success)
         //Очищаем значения
