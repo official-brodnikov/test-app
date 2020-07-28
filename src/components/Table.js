@@ -22,7 +22,7 @@ import './Button.css';
         return (
             <table className="table">
                 <thead>
-                <tr className="tableHeader">
+                <tr>
                     <th>ID</th>
                     <th>User ID</th>
                     <th>Title</th>
